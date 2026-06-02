@@ -35,7 +35,7 @@ function getDateCutoff(range) {
 
 export default function WorkoutPage() {
   const navigate = useNavigate();
-  const { workouts, loading, fetchWorkouts } = useWorkouts();
+  const { workouts, loading, fetchWorkouts, deleteWorkout } = useWorkouts();
   const [typeFilter, setTypeFilter] = useState("All");
   const [dateFilter, setDateFilter] = useState("all");
 
@@ -75,7 +75,14 @@ export default function WorkoutPage() {
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {filtered.map((w) => <WorkoutCard key={w.id} workout={w} />)}
+          {filtered.map((w) => (
+            <WorkoutCard
+              key={w.id}
+              workout={w}
+              onClick={() => navigate(`/workouts/edit/${w.id}`, { state: { workout: w } })}
+              onDelete={() => deleteWorkout(w.id)}
+            />
+          ))}
         </div>
       )}
     </PageWrapper>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { Plus, ChevronLeft } from "lucide-react";
 import PageWrapper from "../layout/PageWrapper";
 import ExerciseBlock from "./ExerciseBlock";
@@ -16,21 +16,58 @@ import { format } from "date-fns";
 export default function WorkoutLoggerPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { saveWorkout } = useWorkouts();
+  const { id: editId } = useParams();
+  const { saveWorkout, updateWorkout } = useWorkouts();
+
+  const isEditing = !!editId;
+  const editWorkout = location.state?.workout ?? null;
 
   const [workoutType, setWorkoutType] = useState(null);
-  const [exercises, setExercises] = useState([]); // [{ exercise, sets[] }]
-  const [showTypeSelector, setShowTypeSelector] = useState(true);
+  const [exercises, setExercises] = useState([]);
+  const [showTypeSelector, setShowTypeSelector] = useState(!isEditing);
   const [showExerciseSearch, setShowExerciseSearch] = useState(false);
   const [showFinish, setShowFinish] = useState(false);
   const [prs, setPrs] = useState([]);
   const [elapsed, setElapsed] = useState(0);
   const startRef = useRef(Date.now());
+  const editInitialized = useRef(false);
 
   useEffect(() => {
     const iv = setInterval(() => setElapsed(Math.floor((Date.now() - startRef.current) / 1000)), 1000);
     return () => clearInterval(iv);
   }, []);
+
+  useEffect(() => {
+    if (!isEditing || editInitialized.current) return;
+    editInitialized.current = true;
+
+    if (!editWorkout) {
+      navigate("/workouts", { replace: true });
+      return;
+    }
+
+    setWorkoutType(editWorkout.workout_type);
+    setShowTypeSelector(false);
+
+    const exerciseMap = new Map();
+    (editWorkout.workout_sets || []).forEach((s) => {
+      if (!exerciseMap.has(s.exercise_name)) exerciseMap.set(s.exercise_name, []);
+      exerciseMap.get(s.exercise_name).push(s);
+    });
+    setExercises(
+      [...exerciseMap.entries()].map(([name, sets]) => ({
+        exercise: { name },
+        sets: sets
+          .sort((a, b) => a.set_number - b.set_number)
+          .map((s) => ({
+            set_number: s.set_number,
+            reps: s.reps.toString(),
+            weight_kg: s.weight_kg.toString(),
+            rpe: s.rpe?.toString() ?? "",
+          })),
+      }))
+    );
+  }, [isEditing, editWorkout, navigate]);
 
   const elapsedMin = Math.floor(elapsed / 60);
   const elapsedDisplay = `${Math.floor(elapsed / 60)}:${(elapsed % 60).toString().padStart(2, "0")}`;
@@ -43,10 +80,7 @@ export default function WorkoutLoggerPage() {
   function addExercise(ex) {
     setExercises((prev) => [
       ...prev,
-      {
-        exercise: ex,
-        sets: [{ set_number: 1, reps: "", weight_kg: "", rpe: "" }],
-      },
+      { exercise: ex, sets: [{ set_number: 1, reps: "", weight_kg: "", rpe: "" }] },
     ]);
     setShowExerciseSearch(false);
   }
@@ -87,13 +121,20 @@ export default function WorkoutLoggerPage() {
         }))
     );
 
+    if (isEditing) {
+      const { error } = await updateWorkout(
+        editId,
+        { date: editWorkout.date, workout_type: workoutType, duration_min, notes },
+        allSets
+      );
+      if (error) return;
+      toast.success("Workout updated!");
+      navigate("/workouts");
+      return;
+    }
+
     const { prs: detectedPRs, error } = await saveWorkout(
-      {
-        date: format(new Date(), "yyyy-MM-dd"),
-        workout_type: workoutType,
-        duration_min,
-        notes,
-      },
+      { date: format(new Date(), "yyyy-MM-dd"), workout_type: workoutType, duration_min, notes },
       allSets
     );
 
@@ -115,15 +156,15 @@ export default function WorkoutLoggerPage() {
           <ChevronLeft size={22} />
         </button>
         <div className="flex-1">
-          <h1 className="text-lg font-bold">{workoutType || "New Workout"}</h1>
-          <p className="text-xs text-zinc-500">{elapsedDisplay} elapsed</p>
+          <h1 className="text-lg font-bold">{workoutType || (isEditing ? "Edit Workout" : "New Workout")}</h1>
+          {!isEditing && <p className="text-xs text-zinc-500">{elapsedDisplay} elapsed</p>}
         </div>
         <Button onClick={() => setShowFinish(true)} size="sm" disabled={exercises.length === 0}>
-          Finish
+          {isEditing ? "Update" : "Finish"}
         </Button>
       </div>
 
-      <RestTimer />
+      {!isEditing && <RestTimer />}
 
       <div className="mt-4">
         {exercises.length === 0 && !showTypeSelector && (
@@ -165,8 +206,11 @@ export default function WorkoutLoggerPage() {
         open={showFinish}
         onClose={() => setShowFinish(false)}
         onSave={handleSave}
-        elapsedMin={elapsedMin}
+        elapsedMin={isEditing ? undefined : elapsedMin}
+        initialDuration={isEditing ? editWorkout?.duration_min : undefined}
+        initialNotes={isEditing ? editWorkout?.notes : undefined}
         prs={prs}
+        isEditing={isEditing}
       />
     </PageWrapper>
   );

@@ -7,7 +7,7 @@ export default function SetRow({ set, index, onChange, onDelete }) {
 
   return (
     <div className="flex items-center gap-2 py-2">
-      <span className="text-xs text-zinc-500 w-5 text-center flex-shrink-0">
+      <span className="text-xs text-zinc-500 w-5 text-center shrink-0">
         {set.set_number}
       </span>
       <input

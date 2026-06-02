@@ -35,7 +35,8 @@ function AppRoutes() {
         <Routes>
           <Route path="/"             element={<DashboardPage />} />
           <Route path="/workouts"     element={<WorkoutPage />} />
-          <Route path="/workouts/log" element={<WorkoutLoggerPage />} />
+          <Route path="/workouts/log"        element={<WorkoutLoggerPage />} />
+          <Route path="/workouts/edit/:id"  element={<WorkoutLoggerPage />} />
           <Route path="/plans"        element={<PlansPage />} />
           <Route path="/runs"         element={<RunsPage />} />
           <Route path="/stats"        element={<StatsPage />} />

@@ -27,6 +27,7 @@ export default function PlanScheduleEditor({ schedule, onChange }) {
           const activity = schedule[i]?.activity_type ?? "Rest";
           return (
             <button
+              type="button"
               key={day}
               onClick={() => cycle(i)}
               className={`flex flex-col items-center gap-1 rounded-xl py-2.5 px-1 transition active:scale-95 ${ACTIVITY_COLORS[activity] || ACTIVITY_COLORS.Rest}`}

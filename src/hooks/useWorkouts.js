@@ -59,6 +59,37 @@ export function useWorkouts() {
     }
   }
 
+  async function updateWorkout(id, workoutData, sets) {
+    try {
+      const { error: wErr } = await supabase
+        .from("workouts")
+        .update({
+          workout_type: workoutData.workout_type,
+          duration_min: workoutData.duration_min,
+          notes: workoutData.notes,
+          date: workoutData.date,
+        })
+        .eq("id", id);
+      if (wErr) throw wErr;
+
+      await supabase.from("workout_sets").delete().eq("workout_id", id);
+
+      if (sets.length > 0) {
+        const { error: sErr } = await supabase
+          .from("workout_sets")
+          .insert(sets.map((s) => ({ ...s, workout_id: id })));
+        if (sErr) throw sErr;
+      }
+
+      const updated = { id, ...workoutData, workout_sets: sets };
+      setWorkouts((prev) => prev.map((w) => (w.id === id ? updated : w)));
+      return { workout: updated };
+    } catch (err) {
+      toast.error("Failed to update workout.");
+      return { error: err };
+    }
+  }
+
   async function deleteWorkout(id) {
     setWorkouts((prev) => prev.filter((w) => w.id !== id));
     const { error } = await supabase.from("workouts").delete().eq("id", id);
@@ -77,5 +108,5 @@ export function useWorkouts() {
     return d >= mon;
   });
 
-  return { workouts, loading, fetchWorkouts, saveWorkout, deleteWorkout, thisWeekWorkouts };
+  return { workouts, loading, fetchWorkouts, saveWorkout, updateWorkout, deleteWorkout, thisWeekWorkouts };
 }

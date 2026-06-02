@@ -1,9 +1,11 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import { detectPRs } from "../utils/prDetection";
 import toast from "react-hot-toast";
 
 export function useWorkouts() {
+  const { session } = useAuth();
   const [workouts, setWorkouts] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -26,6 +28,7 @@ export function useWorkouts() {
       const { data: savedWorkout, error: wErr } = await supabase
         .from("workouts")
         .insert({
+          user_id: session.user.id,
           date: workoutData.date,
           workout_type: workoutData.workout_type,
           duration_min: workoutData.duration_min,

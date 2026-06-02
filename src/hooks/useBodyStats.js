@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 export function useBodyStats() {
+  const { session } = useAuth();
   const [stats, setStats] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -24,7 +26,7 @@ export function useBodyStats() {
     try {
       const { data, error } = await supabase
         .from("body_stats")
-        .insert(statData)
+        .insert({ ...statData, user_id: session.user.id })
         .select()
         .single();
       if (error) throw error;

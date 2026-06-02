@@ -1,8 +1,10 @@
 import { useState, useCallback } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { useAuth } from "../context/AuthContext";
 import toast from "react-hot-toast";
 
 export function useRuns() {
+  const { session } = useAuth();
   const [runs, setRuns] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -25,6 +27,7 @@ export function useRuns() {
       const { data, error } = await supabase
         .from("runs")
         .insert({
+          user_id: session.user.id,
           date: runData.date,
           distance_km: runData.distance_km,
           duration_sec: runData.duration_sec,

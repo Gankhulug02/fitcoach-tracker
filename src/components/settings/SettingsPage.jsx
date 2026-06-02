@@ -1,6 +1,7 @@
 import PageWrapper from "../layout/PageWrapper";
 import AccountSection from "./AccountSection";
 import InjuryFlagsSection from "./InjuryFlagsSection";
+import GoalsSection from "./GoalsSection";
 import ExportSection from "./ExportSection";
 import DeleteAccountSection from "./DeleteAccountSection";
 import { useAuth } from "../../context/AuthContext";
@@ -31,6 +32,10 @@ export default function SettingsPage() {
 
       <Section title="Injury flags">
         <InjuryFlagsSection />
+      </Section>
+
+      <Section title="Goals">
+        <GoalsSection />
       </Section>
 
       <Section title="Export data">

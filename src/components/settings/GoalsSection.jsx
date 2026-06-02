@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react";
+import { format, startOfMonth } from "date-fns";
 import { useAuth } from "../../context/AuthContext";
+import { supabase } from "../../lib/supabaseClient";
 import Button from "../ui/Button";
 import toast from "react-hot-toast";
 
@@ -38,7 +40,16 @@ export default function GoalsSection() {
 
   async function handleSave() {
     setSaving(true);
+    // 1. Save to user profile (current goals)
     const { error } = await updateProfile(values);
+
+    // 2. Snapshot goals for the current month
+    const monthKey = format(startOfMonth(new Date()), "yyyy-MM-dd");
+    await supabase.from("monthly_goals").upsert(
+      { ...values, month: monthKey },
+      { onConflict: "user_id,month" }
+    );
+
     setSaving(false);
     if (!error) toast.success("Goals saved!");
     else toast.error("Failed to save goals.");

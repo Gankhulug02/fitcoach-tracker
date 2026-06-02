@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { startOfMonth } from "date-fns";
 import PageWrapper from "../layout/PageWrapper";
 import GreetingCard from "./GreetingCard";
 import StatsStrip from "./StatsStrip";
@@ -10,32 +9,24 @@ import { useAuth } from "../../context/AuthContext";
 import { useWorkouts } from "../../hooks/useWorkouts";
 import { useRuns } from "../../hooks/useRuns";
 import { useBodyStats } from "../../hooks/useBodyStats";
+import { useMonthlyGoals } from "../../hooks/useMonthlyGoals";
 
 export default function DashboardPage() {
   const { profile } = useAuth();
   const { workouts, fetchWorkouts, thisWeekWorkouts } = useWorkouts();
   const { runs, fetchRuns, thisWeekRuns } = useRuns();
   const { stats, fetchBodyStats, latestStat } = useBodyStats();
+  const { fetchMonthlyGoals, getGoalsForMonth } = useMonthlyGoals();
 
   useEffect(() => {
     fetchWorkouts();
     fetchRuns();
     fetchBodyStats();
-  }, [fetchWorkouts, fetchRuns, fetchBodyStats]);
+    fetchMonthlyGoals();
+  }, [fetchWorkouts, fetchRuns, fetchBodyStats, fetchMonthlyGoals]);
 
   const lastWorkout = workouts[0] || null;
   const lastRun = runs[0] || null;
-
-  // Monthly counts
-  const monthStart = startOfMonth(new Date());
-  const thisMonthWorkouts = workouts.filter(
-    (w) => new Date(w.date) >= monthStart,
-  );
-  const thisMonthRuns = runs.filter((r) => new Date(r.date) >= monthStart);
-  const thisMonthDistance = thisMonthRuns.reduce(
-    (sum, r) => sum + (parseFloat(r.distance_km) || 0),
-    0,
-  );
 
   return (
     <PageWrapper>
@@ -45,14 +36,9 @@ export default function DashboardPage() {
         gymCount={thisWeekWorkouts.length}
         runCount={thisWeekRuns.length}
         gymTarget={profile?.weekly_gym_goal ?? 3}
-        runTarget={profile?.weekly_run_goal ?? 3}
+        runTarget={profile?.weekly_run_goal ?? 1}
       />
-      <MonthlyProgress
-        workoutCount={thisMonthWorkouts.length}
-        runCount={thisMonthRuns.length}
-        runDistance={thisMonthDistance}
-        goals={profile}
-      />
+      <MonthlyProgress workouts={workouts} runs={runs} currentGoals={profile} getGoalsForMonth={getGoalsForMonth} />
       <LastActivityCard lastWorkout={lastWorkout} lastRun={lastRun} />
 
       {workouts.length === 0 && runs.length === 0 && stats.length === 0 && (

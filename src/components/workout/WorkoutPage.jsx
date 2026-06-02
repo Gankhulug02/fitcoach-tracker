@@ -1,38 +1,78 @@
-import { useEffect } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
+import { subWeeks, subMonths } from "date-fns";
 import PageWrapper from "../layout/PageWrapper";
 import WorkoutCard from "./WorkoutCard";
+import FilterBar from "../ui/FilterBar";
 import EmptyState from "../ui/EmptyState";
 import Spinner from "../ui/Spinner";
 import Button from "../ui/Button";
 import { useWorkouts } from "../../hooks/useWorkouts";
 
+const TYPE_FILTERS = [
+  { label: "All",       value: "All"       },
+  { label: "Push",      value: "Push"      },
+  { label: "Pull",      value: "Pull"      },
+  { label: "Legs",      value: "Legs"      },
+  { label: "Full Body", value: "Full Body" },
+  { label: "Custom",    value: "Custom"    },
+];
+
+const DATE_FILTERS = [
+  { label: "All time",   value: "all"   },
+  { label: "This week",  value: "week"  },
+  { label: "This month", value: "month" },
+  { label: "3 months",   value: "3m"    },
+];
+
+function getDateCutoff(range) {
+  const now = new Date();
+  if (range === "week")  return subWeeks(now, 1);
+  if (range === "month") return subMonths(now, 1);
+  if (range === "3m")    return subMonths(now, 3);
+  return null;
+}
+
 export default function WorkoutPage() {
   const navigate = useNavigate();
   const { workouts, loading, fetchWorkouts } = useWorkouts();
+  const [typeFilter, setTypeFilter] = useState("All");
+  const [dateFilter, setDateFilter] = useState("all");
 
   useEffect(() => { fetchWorkouts(); }, [fetchWorkouts]);
 
+  const filtered = useMemo(() => {
+    const cutoff = getDateCutoff(dateFilter);
+    return workouts.filter((w) => {
+      const matchType = typeFilter === "All" || w.workout_type === typeFilter;
+      const matchDate = !cutoff || new Date(w.date) >= cutoff;
+      return matchType && matchDate;
+    });
+  }, [workouts, typeFilter, dateFilter]);
+
   return (
     <PageWrapper>
-      <div className="flex items-center justify-between mb-5">
+      <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Workouts</h1>
         <Button onClick={() => navigate("/workouts/log")} size="sm">+ Log</Button>
       </div>
 
+      <FilterBar options={TYPE_FILTERS} value={typeFilter} onChange={setTypeFilter} className="mb-2" />
+      <FilterBar options={DATE_FILTERS} value={dateFilter} onChange={setDateFilter} className="mb-4" />
+
       {loading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
-      ) : workouts.length === 0 ? (
+      ) : filtered.length === 0 ? (
         <EmptyState
           icon="🏋️"
-          title="No workouts yet"
-          description="Log your first session to start tracking progress."
-          actionLabel="Log workout"
-          onAction={() => navigate("/workouts/log")}
+          title={workouts.length === 0 ? "No workouts yet" : "No matching workouts"}
+          description={workouts.length === 0 ? "Log your first session to start tracking progress." : "Try adjusting the filters above."}
+          actionLabel={workouts.length === 0 ? "Log workout" : undefined}
+          onAction={workouts.length === 0 ? () => navigate("/workouts/log") : undefined}
         />
       ) : (
         <div className="flex flex-col gap-3">
-          {workouts.map((w) => <WorkoutCard key={w.id} workout={w} />)}
+          {filtered.map((w) => <WorkoutCard key={w.id} workout={w} />)}
         </div>
       )}
     </PageWrapper>

@@ -54,7 +54,10 @@ export default function WorkoutPage() {
     <PageWrapper>
       <div className="flex items-center justify-between mb-4">
         <h1 className="text-2xl font-bold">Workouts</h1>
-        <Button onClick={() => navigate("/workouts/log")} size="sm">+ Log</Button>
+        <div className="flex gap-2">
+          <Button variant="secondary" onClick={() => navigate("/plans")} size="sm">Plans</Button>
+          <Button onClick={() => navigate("/workouts/log")} size="sm">+ Log</Button>
+        </div>
       </div>
 
       <FilterBar options={TYPE_FILTERS} value={typeFilter} onChange={setTypeFilter} className="mb-2" />

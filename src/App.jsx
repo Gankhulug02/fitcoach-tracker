@@ -7,6 +7,7 @@ import OnboardingPage from "./components/auth/OnboardingPage";
 import DashboardPage from "./components/dashboard/DashboardPage";
 import WorkoutPage from "./components/workout/WorkoutPage";
 import WorkoutLoggerPage from "./components/workout/WorkoutLoggerPage";
+import PlansPage from "./components/plans/PlansPage";
 import RunsPage from "./components/runs/RunsPage";
 import StatsPage from "./components/stats/StatsPage";
 import SettingsPage from "./components/settings/SettingsPage";
@@ -35,6 +36,7 @@ function AppRoutes() {
           <Route path="/"             element={<DashboardPage />} />
           <Route path="/workouts"     element={<WorkoutPage />} />
           <Route path="/workouts/log" element={<WorkoutLoggerPage />} />
+          <Route path="/plans"        element={<PlansPage />} />
           <Route path="/runs"         element={<RunsPage />} />
           <Route path="/stats"        element={<StatsPage />} />
           <Route path="/settings"     element={<SettingsPage />} />

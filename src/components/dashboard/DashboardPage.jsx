@@ -5,11 +5,13 @@ import StatsStrip from "./StatsStrip";
 import WeeklyRings from "./WeeklyRings";
 import MonthlyProgress from "./MonthlyProgress";
 import LastActivityCard from "./LastActivityCard";
+import ActivePlanCard from "./ActivePlanCard";
 import { useAuth } from "../../context/AuthContext";
 import { useWorkouts } from "../../hooks/useWorkouts";
 import { useRuns } from "../../hooks/useRuns";
 import { useBodyStats } from "../../hooks/useBodyStats";
 import { useMonthlyGoals } from "../../hooks/useMonthlyGoals";
+import { usePlans } from "../../hooks/usePlans";
 
 export default function DashboardPage() {
   const { profile } = useAuth();
@@ -17,13 +19,15 @@ export default function DashboardPage() {
   const { runs, fetchRuns, thisWeekRuns } = useRuns();
   const { stats, fetchBodyStats, latestStat } = useBodyStats();
   const { fetchMonthlyGoals, getGoalsForMonth } = useMonthlyGoals();
+  const { activePlan, fetchPlans } = usePlans();
 
   useEffect(() => {
     fetchWorkouts();
     fetchRuns();
     fetchBodyStats();
     fetchMonthlyGoals();
-  }, [fetchWorkouts, fetchRuns, fetchBodyStats, fetchMonthlyGoals]);
+    fetchPlans();
+  }, [fetchWorkouts, fetchRuns, fetchBodyStats, fetchMonthlyGoals, fetchPlans]);
 
   const lastWorkout = workouts[0] || null;
   const lastRun = runs[0] || null;
@@ -38,7 +42,13 @@ export default function DashboardPage() {
         gymTarget={profile?.weekly_gym_goal ?? 3}
         runTarget={profile?.weekly_run_goal ?? 1}
       />
-      <MonthlyProgress workouts={workouts} runs={runs} currentGoals={profile} getGoalsForMonth={getGoalsForMonth} />
+      <ActivePlanCard plan={activePlan} />
+      <MonthlyProgress
+        workouts={workouts}
+        runs={runs}
+        currentGoals={profile}
+        getGoalsForMonth={getGoalsForMonth}
+      />
       <LastActivityCard lastWorkout={lastWorkout} lastRun={lastRun} />
 
       {workouts.length === 0 && runs.length === 0 && stats.length === 0 && (

@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { subWeeks, subMonths } from "date-fns";
 import PageWrapper from "../layout/PageWrapper";
 import WorkoutCard from "./WorkoutCard";
 import FilterBar from "../ui/FilterBar";
@@ -8,30 +7,13 @@ import EmptyState from "../ui/EmptyState";
 import Spinner from "../ui/Spinner";
 import Button from "../ui/Button";
 import { useWorkouts } from "../../hooks/useWorkouts";
+import { WORKOUT_TYPES } from "../../constants/activities";
+import { DATE_FILTERS, getDateCutoff } from "../../utils/dateFilters";
 
 const TYPE_FILTERS = [
-  { label: "All",       value: "All"       },
-  { label: "Push",      value: "Push"      },
-  { label: "Pull",      value: "Pull"      },
-  { label: "Legs",      value: "Legs"      },
-  { label: "Full Body", value: "Full Body" },
-  { label: "Custom",    value: "Custom"    },
+  { label: "All", value: "All" },
+  ...WORKOUT_TYPES.map((t) => ({ label: t, value: t })),
 ];
-
-const DATE_FILTERS = [
-  { label: "All time",   value: "all"   },
-  { label: "This week",  value: "week"  },
-  { label: "This month", value: "month" },
-  { label: "3 months",   value: "3m"    },
-];
-
-function getDateCutoff(range) {
-  const now = new Date();
-  if (range === "week")  return subWeeks(now, 1);
-  if (range === "month") return subMonths(now, 1);
-  if (range === "3m")    return subMonths(now, 3);
-  return null;
-}
 
 export default function WorkoutPage() {
   const navigate = useNavigate();

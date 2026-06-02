@@ -1,6 +1,5 @@
 import { useEffect, useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { subWeeks, subMonths } from "date-fns";
 import PageWrapper from "../layout/PageWrapper";
 import GoalTrackerCard from "./GoalTrackerCard";
 import RunCard from "./RunCard";
@@ -10,13 +9,7 @@ import FilterBar from "../ui/FilterBar";
 import EmptyState from "../ui/EmptyState";
 import Spinner from "../ui/Spinner";
 import { useRuns } from "../../hooks/useRuns";
-
-const DATE_FILTERS = [
-  { label: "All time",   value: "all"   },
-  { label: "This week",  value: "week"  },
-  { label: "This month", value: "month" },
-  { label: "3 months",   value: "3m"    },
-];
+import { DATE_FILTERS, getDateCutoff } from "../../utils/dateFilters";
 
 const DIST_FILTERS = [
   { label: "Any dist",  value: "all" },
@@ -24,14 +17,6 @@ const DIST_FILTERS = [
   { label: "5–10 km",  value: "5to10" },
   { label: "> 10 km",  value: "gt10" },
 ];
-
-function getDateCutoff(range) {
-  const now = new Date();
-  if (range === "week")  return subWeeks(now, 1);
-  if (range === "month") return subMonths(now, 1);
-  if (range === "3m")    return subMonths(now, 3);
-  return null;
-}
 
 export default function RunsPage() {
   const { runs, loading, fetchRuns, longestRun } = useRuns();

@@ -1,18 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { differenceInDays, parseISO } from "date-fns";
 import { ChevronRight } from "lucide-react";
-
-const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-const ACTIVITY_COLORS = {
-  Rest:       "bg-zinc-700 text-zinc-500",
-  Push:       "bg-blue-500/20 text-blue-300",
-  Pull:       "bg-green-500/20 text-green-300",
-  Legs:       "bg-yellow-500/20 text-yellow-300",
-  "Full Body":"bg-accent/20 text-accent",
-  Run:        "bg-orange-500/20 text-orange-300",
-  Custom:     "bg-purple-500/20 text-purple-300",
-};
+import { DAYS, ACTIVITY_COLORS } from "../../constants/activities";
 
 export default function ActivePlanCard({ plan }) {
   const navigate = useNavigate();

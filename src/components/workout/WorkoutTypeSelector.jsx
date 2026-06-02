@@ -1,4 +1,4 @@
-const TYPES = ["Push", "Pull", "Legs", "Full Body", "Custom"];
+import { WORKOUT_TYPES } from "../../constants/activities";
 
 const TYPE_EMOJI = {
   Push:       "💪",
@@ -11,7 +11,7 @@ const TYPE_EMOJI = {
 export default function WorkoutTypeSelector({ onSelect }) {
   return (
     <div className="flex flex-col gap-3 py-2">
-      {TYPES.map((type) => (
+      {WORKOUT_TYPES.map((type) => (
         <button
           key={type}
           onClick={() => onSelect(type)}

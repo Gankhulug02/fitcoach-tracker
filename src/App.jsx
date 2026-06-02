@@ -8,6 +8,7 @@ import DashboardPage from "./components/dashboard/DashboardPage";
 import WorkoutPage from "./components/workout/WorkoutPage";
 import WorkoutLoggerPage from "./components/workout/WorkoutLoggerPage";
 import PlansPage from "./components/plans/PlansPage";
+import EtoyaaPlanPage from "./components/plans/EtoyaaPlanPage";
 import RunsPage from "./components/runs/RunsPage";
 import StatsPage from "./components/stats/StatsPage";
 import SettingsPage from "./components/settings/SettingsPage";
@@ -37,7 +38,8 @@ function AppRoutes() {
           <Route path="/workouts"     element={<WorkoutPage />} />
           <Route path="/workouts/log"        element={<WorkoutLoggerPage />} />
           <Route path="/workouts/edit/:id"  element={<WorkoutLoggerPage />} />
-          <Route path="/plans"        element={<PlansPage />} />
+          <Route path="/plans"          element={<PlansPage />} />
+          <Route path="/plans/etoyaa"  element={<EtoyaaPlanPage />} />
           <Route path="/runs"         element={<RunsPage />} />
           <Route path="/stats"        element={<StatsPage />} />
           <Route path="/settings"     element={<SettingsPage />} />

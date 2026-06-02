@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, Plus } from "lucide-react";
+import { ChevronLeft, Plus, ChevronRight } from "lucide-react";
 import PageWrapper from "../layout/PageWrapper";
 import PlanCard from "./PlanCard";
 import PlanForm from "./PlanForm";
@@ -30,6 +30,19 @@ export default function PlansPage() {
           <Plus size={16} /> New
         </button>
       </div>
+
+      {/* Etoyaa 12-month plan shortcut */}
+      <button
+        onClick={() => navigate("/plans/etoyaa")}
+        className="w-full flex items-center gap-3 bg-accent/10 border border-accent/20 rounded-2xl px-4 py-3 mb-4 text-left tap-target hover:bg-accent/15 transition"
+      >
+        <span className="text-xl">🏃</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs font-bold text-accent uppercase tracking-wide">12-Month Plan</p>
+          <p className="text-sm font-bold text-white">Etoyaa — Half Marathon 2027</p>
+        </div>
+        <ChevronRight size={16} className="text-zinc-500 shrink-0" />
+      </button>
 
       {loading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
